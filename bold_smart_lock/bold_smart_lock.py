@@ -95,3 +95,24 @@ class BoldSmartLock:
             return response_json
         except Exception as exception:
             raise exception
+
+
+    async def get_all_log_data(self, device_id: int, extra_url_param: str):
+        """Get all log data for device id."""
+        try:
+            response = await self._auth.request(
+                "POST", f"{API_URL}{DEVICE_SERVICE}/device-events/device/{device_id}?{extra_url_param}"
+            )
+            response_json = await response.json()
+
+            if response_json["errorCode"] == "TooManyRequests":
+                raise TooManyRequestsError
+            if response_json["errorCode"] == "gatewayNotFoundError":
+                raise GatewayNotFoundError
+            if response_json["errorCode"] != "OK":
+                raise ActivationError
+
+            return response_json
+        except Exception as exception:
+            raise exception
+
